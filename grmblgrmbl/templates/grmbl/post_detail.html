@@ -16,6 +16,9 @@
     {{ post.note.raw_content|safe }}
   </div>
   {% endif %}
+  {% if post.posse_data %}
+    {% if post.posse_data.twitter %}<p class="posse-link"><a class="u-syndication" rel="syndication" href="{{ post.posse_data.twitter }}">View on Twitter</a></p>{% endif %}
+  {% endif %}
   {% if tags|length > 1 %}<p class="taglist">Tags: {% for tag in tags %}<a class="p-category" href="/posts?tag={{ tag }}">{{ tag }}</a> {% endfor %}</p>{% endif %}
 
 <!-- Old webmention stuff, ignore this

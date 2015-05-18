@@ -227,6 +227,15 @@ a.note-date:hover {
   font-family:        "Press Start 2P", monospace;
 }
 
+.posse-link {
+  padding-left:       32px;
+
+  text-align:         left;
+
+  font-family:        "Press Start 2P", monospace;
+  font-size:          8pt;
+}
+
 .taglist {
   padding-left:       32px;
 

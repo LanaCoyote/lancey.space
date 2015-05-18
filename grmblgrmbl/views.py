@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template import RequestContext
+from possem.twitter import tweet_post
 from .models import Post, Note, Article, Reply
 from .forms import ComposeForm
 
@@ -119,6 +120,7 @@ def compose ( request ) :
           new_note.save()
           post = new_note
 
+      tweet_post( post )
       return HttpResponseRedirect( '/posts/' + str( post.pk ) )
   else :
     form = ComposeForm()
