@@ -71,6 +71,10 @@ def post_detail ( request, pid ) :
 
   return render_to_response( 'grmbl/post_detail.html', { 'post' : post, 'tags' : post.tags.split( " " ) }, context_instance = RequestContext( request ) )
 
+def shortlink( request, pid ) :
+  # Shortlinks should just redirect to the valid post
+  return HttpResponseRedirect( '/posts/' + str( pid ) )
+
 def compose ( request ) :
   if not request.user.is_authenticated or not request.user.is_staff :
     return HttpResponseForbidden()
