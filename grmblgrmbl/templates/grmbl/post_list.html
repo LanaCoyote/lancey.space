@@ -1,0 +1,21 @@
+{% extends "grmbl/default.html" %}
+
+{% block content %}
+  {% for post in post_list %}
+  {% if post.article %}
+  <div class="h-entry note">
+    <a class="article-head u-url" href="/posts/{{ post.id }}"><h2 class="p-name">{{ post.article.title }}</h2>
+    <h3>POSTED <span class="dt-published">{{ post.date_posted }}</span></h3></a>
+    <p class="e-content">{{ post.article.content|safe|truncatewords_html:250 }}</p>
+    <center><a class="readmore-link" href="/posts/{{ post.id }}">READ MORE</a></center>
+  </div>
+  {% endif %}{% if post.note %}
+  <div class="h-entry note">
+    <a class="note-date u-url" href="/posts/{{ post.id }}"><h3>POSTED <span class="dt-published">{{ post.date_posted }}</span></h3></a>
+    {{ post.note.raw_content|safe }}
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  <span class="readmore-link">{% if page > 1 %}<a href="/posts?page={{ page|add:'-1' }}">PREVIOUS</a> - {% endif %}{% if not page == 1 and last_page %}PAGE {{ page }}{% endif %}{% if not last_page %} - <a href="/posts?page={{ page|add:'1' }}">CONTINUE</a>{% endif %}</span>
+{% endblock %}

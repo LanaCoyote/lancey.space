@@ -1,0 +1,41 @@
+{% extends "grmbl/default.html" %}
+
+{% block content %}
+  <div class="h-entry">
+  {% if post.article %}
+  <div class="note">
+    <h2 class="p-name">{{ post.article.title }}</h2>
+    <a class="u-url article-head" href="/posts/{{ post.id }}"><h3>POSTED <span class="dt-published">{{ post.date_posted }}</span></h3></a>
+    <div class="e-content">{{ post.article.content|safe }}</div>
+  </div>
+  {% endif %}{% if post.note %}
+  <div class="note">
+    {% if post.note.reply %}<div class="reply-context u-in-reply-to">REPLY TO <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url }}</a></div>{% endif %}
+
+    <a class="note-date u-url" href="/posts/{{ post.id }}"><h3>POSTED <span class="dt-published">{{ post.date_posted }}</span></h3></a>
+    {{ post.note.raw_content|safe }}
+  </div>
+  {% endif %}
+  {% if tags|length > 1 %}<p class="taglist">Tags: {% for tag in tags %}<a class="p-category" href="/posts?tag={{ tag }}">{{ tag }}</a> {% endfor %}</p>{% endif %}
+
+<!-- Old webmention stuff, ignore this
+  <h3 class="response-header">Comments & Responses</h3>
+  
+  {% for mention in post.mention_set.all %}
+  <div class="response p-comment h-cite">
+    {% if mention.resp_type == 0 %}<p class="comment"><span class="p-author h-card">{{ mention.author }}</span> replied to this article from <a href="{{ mention.source }}">{{ mention.source }}</a>.</p>
+        <p class="comment-content e-summary">{{ mention.content }}</p>
+    {% elif mention.resp_type == 1 %}<p class="like"><span class="p-author h-card">{{ mention.author }}</span> liked this article.</p>
+    {% elif mention.resp_type == 2 %}<p class="repost"><span class="p-author h-card">{{ mention.author }}</span> reposted this article to <a href="{{ mention.source }}">{{ mention.source }}</a>.</p>
+    {% elif mention.resp_type == 3 %}<p class="mention"><span class="p-author h-card">{{ mention.author }}</span> mentioned this article from <a href="{{ mention.source }}">{{ mention.source }}</a>.</p>
+        {% endif %}
+  </div>
+  {% endfor %}
+-->
+
+  <span class="readmore-link">{% if post.prev_id %}<a href="/posts/{{ post.prev_id }}">PREVIOUS</a>{% else %}START{% endif %} - {% if post.next_id %}<a href="/posts/{{ post.next_id }}">CONTINUE</a>{% else %}END{% endif %}</span>
+{% endblock %}
+
+{% block posthcard %}
+</div>
+{% endblock %}

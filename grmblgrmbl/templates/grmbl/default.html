@@ -1,0 +1,69 @@
+{% load staticfiles %}
+
+<html>
+<head>
+  <title>LANCEY SPACE</title>
+
+  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+  <link rel="stylesheet" href="{% static 'default.css' %}">
+  <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+
+  <!-- <link rel="webmention" href="/webmention"> -->
+</head>
+
+<body>
+<!-- web-sign-in block -->
+
+{% if user.is_authenticated %}
+<div id="websignin">
+  <form action="http://lancey.space/auth/logout" method="get">
+    <label for="signout_button">SIGNED IN AS {{ user.username }}</label>
+    <button id="signout_button" type="submit">Sign Out</button>
+  </form>
+</div>
+{% else %}
+<div id="websignin">
+  <form action="https://indieauth.com/auth" method="get">
+    <label for="indie_auth_url">WEB SIGN IN:</label>
+    <input id="indie_auth_url" type="text" name="me" placeholder="example.com">
+    <button type="submit">Sign In</button>
+    <input type="hidden" name="client_id" value="http://lancey.space">
+    <input type="hidden" name="redirect_uri" value="http://lancey.space/auth">
+  </form>
+</div>
+{% endif %}
+
+<div id="wrapper">
+
+  <h1><a href="/">LANCEY SPACE</a></h1>
+  
+  <div id="navigation">
+    <a class="navbutton" href="/feed"><img src="{% static 'icon_feed.png' %}"><span class="navbutton-label">FEED</span></a>
+    <a class="navbutton" href="/articles"><img src="{% static 'icon_articles.png' %}"><span class="navbutton-label">ARTICLES</span></a>
+    {% if user.is_staff %}<a class="navbutton" href="/compose"><span class="navbutton-label">NEW</span></a>{% endif %}
+  </div>
+
+  <hr>
+
+  {% block content %}{% endblock %}
+
+  <div id="footer">
+    <hr>
+
+    <div id="footer-content">
+      <div rel="author" class="p-author h-card contact-box">
+        <a href="http://lancey.space" rel="me" class="u-url"><img class="u-photo" width="64px" height="64px" src="http://lancey.space/static/lance_logo.png">
+        <span class="p-name nametag">Lance Coyote</span></a>
+      </div>
+
+      <div class="social-box">
+        <a href="http://twitter.com/lancecoyote" rel="me"><img class="social-logo" src="{% static 'twitter_logo.png' %}"></a>
+        <a href="http://github.com/Lancey6" rel="me"><img class="social-logo" src="{% static 'github_logo.png' %}"></a>
+      </div>
+    </div>
+
+  </div>
+  {% block posthcard %}{% endblock %}
+</div>
+</body>
+</html>

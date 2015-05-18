@@ -1,0 +1,9 @@
+venv/
+migrations/
+
+*.sqlite3
+*.pyc
+
+settings.py
+settings_backup.py
+google*.html
