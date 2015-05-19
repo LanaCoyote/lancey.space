@@ -20,6 +20,21 @@ class Post ( models.Model ) :
   hidden      = models.BooleanField( default = False )
   tags        = models.CharField( max_length = 200, blank = True )
 
+  def kind( self ) :
+    try :
+      self.note
+      try :
+        self.note.reply
+        return "Reply"
+      except AttributeError :
+        return "Note"
+    except AttributeError :
+      try :
+        self.article
+        return "Article"
+      except AttributeError :
+        return "Unknown"
+
   def next_id( self ) :
     try :
       next = Post.objects.filter( date_posted__gt = self.date_posted ).only( "id" ).earliest( "date_posted" )

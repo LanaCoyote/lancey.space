@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template import RequestContext
-from possem.twitter import tweet_post
+from possem.twitter import tweet_post, delete_post
 from .models import Post, Note, Article, Reply
 from .forms import ComposeForm
 
@@ -88,41 +88,102 @@ def compose ( request ) :
       content = form.cleaned_data['content']
       tags    = form.cleaned_data['tags']
 
-      if title :
-        new_article         = Article()
-        new_article.title   = title
-        new_article.content = content
-        new_article.tags    = tags
+      try :
+        post = Post.objects.get( pk = form.cleaned_data['post_id'] )
 
-        new_article.save()
-        post = new_article
-      else :
-        if form.cleaned_data['reply_to'] :
-          reply_to    = form.cleaned_data['reply_to']
-          reply_name  = form.cleaned_data['reply_name']
-          reply_prof  = form.cleaned_data['reply_prof']
+        if form.cleaned_data['delete'] :
+          try :
+            if post.posse_data.twitter :
+              delete_post( post )
+          except :
+            pass
 
-          new_reply         = Reply()
-          new_reply.content = content
-          new_reply.tags    = tags
+          post.delete()
+          return HttpResponseRedirect( '/' )
 
-          new_reply.reply_url     = reply_to
-          new_reply.display_name  = reply_name
-          new_reply.profile       = reply_prof
+        if post.kind() == "Article" :
+          post.article.title    = title
+          post.article.content  = content
+          post.article.tags     = tags
 
-          new_reply.save()
-          post = new_reply
+          post.article.save()
         else :
-          new_note          = Note()
-          new_note.content  = content
-          new_note.tags     = tags
+          post.note.content   = content
+          post.note.tags      = tags
 
-          new_note.save()
-          post = new_note
+          if post.kind() == "Reply" :
+            post.note.reply.reply_url     = form.cleaned_data['reply_to']
+            post.note.reply.display_name  = form.cleaned_data['reply_name']
+            post.note.reply.profile       = form.cleaned_data['reply_prof']
 
-      tweet_post( post )
+            post.note.reply.save()
+          else :
+            post.note.save()
+      except Post.DoesNotExist :
+        if title :
+          new_article         = Article()
+          new_article.title   = title
+          new_article.content = content
+          new_article.tags    = tags
+
+          new_article.save()
+          post = new_article
+        else :
+          if form.cleaned_data['reply_to'] :
+            reply_to    = form.cleaned_data['reply_to']
+            reply_name  = form.cleaned_data['reply_name']
+            reply_prof  = form.cleaned_data['reply_prof']
+
+            new_reply         = Reply()
+            new_reply.content = content
+            new_reply.tags    = tags
+
+            new_reply.reply_url     = reply_to
+            new_reply.display_name  = reply_name
+            new_reply.profile       = reply_prof
+
+            new_reply.save()
+            post = new_reply
+          else :
+            new_note          = Note()
+            new_note.content  = content
+            new_note.tags     = tags
+
+            new_note.save()
+            post = new_note
+
+        if form.cleaned_data['syn_twitter'] :
+          tweet_post( post )
+
       return HttpResponseRedirect( '/posts/' + str( post.pk ) )
   else :
-    form = ComposeForm()
+    try :
+      if request.GET.has_key( 'post_id' ) :
+        post      = Post.objects.get( pk = request.GET['post_id'] )
+        
+        if post.kind() == "Article" :
+          init_data = {
+            'title'   : post.article.title,
+            'content' : post.article.content,
+            'tags'    : post.tags,
+          }
+        else :
+          init_data = {
+            'content' : post.note.content,
+            'tags'    : post.tags,
+          }
+
+          if post.kind() == "Reply" :
+            init_data['reply_to']   = post.note.reply.reply_url
+            init_data['reply_name'] = post.note.reply.display_name
+            init_data['reply_prof'] = post.note.reply.profile
+
+        init_data['post_id']  = post.pk
+
+        form      = ComposeForm( init_data )
+      else :
+        form      = ComposeForm()
+    except Post.DoesNotExist :
+      form        = ComposeForm()
 
   return render_to_response( 'grmbl/compose.html', { 'form' : form }, context_instance = RequestContext( request ) )

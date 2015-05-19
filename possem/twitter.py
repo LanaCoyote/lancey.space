@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+import re
 import tweepy
 from django.conf import settings
 from grmblgrmbl.models import Note, Reply, Article
@@ -13,6 +14,14 @@ def get_self_auth_handler( ) :
   auth = tweepy.OAuthHandler( settings.TWITTER_CONSUMER_TOKEN, settings.TWITTER_CONSUMER_SECRET )
   auth.set_access_token( settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_SECRET )
   return auth
+
+def get_status_id_from_url( url ) :
+  match = re.search( "\d+$", url )
+
+  if match :
+    return match.group( 0 )
+  else :
+    return None
 
 def truncate_string( s, max_length ) :
   if len( s ) < max_length :
@@ -57,3 +66,11 @@ def tweet_post( post ) :
   posse, created  = PosseData.objects.get_or_create( post_id = post.pk )
   posse.twitter   = "http://twitter.com/{}/status/{}".format( status.author.screen_name, status.id_str )
   posse.save()
+
+def delete_post( post ) :
+  auth  = get_self_auth_handler()
+  api   = tweepy.API( auth )
+
+  status_id = get_status_id_from_url( post.posse_data.twitter )
+
+  api.destroy_status( int( status_id ) )

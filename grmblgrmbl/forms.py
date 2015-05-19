@@ -15,3 +15,9 @@ class ComposeForm ( forms.Form ) :
   reply_to    = forms.URLField( label = "Reply to", max_length = 200, required = False, help_text = "URL this note is a reply to. This should be a permalink. Notes only." )
   reply_name  = forms.CharField( label = "Reply name", max_length = 100, required = False, help_text = "The name to reply to, without an @ (e.g. aaronpk). Notes only." )
   reply_prof  = forms.URLField( label = "Reply profile", max_length = 200, required = False, help_text = "The base site this reply should link to (e.g. http://aaronpareki.com). Notes only.")
+
+  syn_twitter = forms.BooleanField( label = "Post to Twitter", initial = True, required = False )
+
+  delete      = forms.BooleanField( label = "Delete Post", initial = False, required = False, help_text = "If you're editing a post, check this box to delete it instead." )
+
+  post_id     = forms.IntegerField( widget = forms.HiddenInput, required = False )
