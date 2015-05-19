@@ -95,8 +95,8 @@ def compose ( request ) :
           try :
             if post.posse_data.twitter :
               delete_post( post )
-          except :
-            pass
+          except Exception as e :
+            print e
 
           post.delete()
           return HttpResponseRedirect( '/' )

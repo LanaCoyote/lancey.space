@@ -1,5 +1,6 @@
 import re
 from django.db import models
+from possem.twitter_utils import get_selfauthed_api_handler, resolve_tco_url
 
 MENTION_REPLY     = 0
 MENTION_LIKE      = 1
@@ -111,6 +112,8 @@ class Note ( Post ) :
       if not tag.group( 1 ) in self.tags :
         self.tags = self.tags + " " + tag.group( 1 )
 
+    twitter_api = get_selfauthed_api_handler( )
+
     # Parse out mentions & replies
     for mention in re.finditer( "@([\w\.-]+)", self.raw_content ) :
       # If we're actually a reply, link to the replied content
@@ -119,7 +122,20 @@ class Note ( Post ) :
 
       # TODO: Search contacts (make contacts)
 
-      # TODO: Search silos
+      # If the @-ref is a valid twitter handle, try to pull their website from their profile
+      elif not "." in mention.group( 0 ) :
+        try :
+          user = twitter_api.get_user( mention.group( 1 ) )
+
+          if user.url :
+            url = resolve_tco_url( user.url )
+          else :
+            # Otherwise just link to their twitter profile
+            url = "https://twitter.com/" + mention.group( 1 )
+
+          self.raw_content = self.raw_content.replace( mention.group( 0 ), "<a href=\"" + url + "\">" + mention.group( 0 ) + "</a>", 1 )
+        except Exception as e :
+          print e
 
       # If the mentioned person is a valid domain anyway, link to that
       elif valid_domain( mention.group( 1 ) ) :

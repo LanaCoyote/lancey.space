@@ -3,38 +3,18 @@ import re
 import requests
 import tweepy
 from bs4 import BeautifulSoup
-from django.conf import settings
 from grmblgrmbl.models import Note, Reply, Article
 from .models import PosseData
+from .twitter_utils import get_selfauthed_api_handler, get_status_id_from_url
 
 TWEET_MAX_LENGTH  = 140
 TWEET_END_BUFFER  = 24
 
-PATTERN_TWEET_ID  = r"\d+$"
 PATTERN_TWIT_HNDL = r"twitter.com/([\w]+)"
 PATTERN_HASHTAG   = r"#\w[\w-]+"
 PATTERN_ATREF     = r"@\w[\w.-]+"
 
 ELLIPSIS_SUFFIX   = u"… "
-
-def get_self_auth_handler( ) :
-  # initialize an auth handler using the tokens defined in settings
-  auth = tweepy.OAuthHandler( settings.TWITTER_CONSUMER_TOKEN, settings.TWITTER_CONSUMER_SECRET )
-  auth.set_access_token( settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_SECRET )
-  return auth
-
-def get_selfauthed_api_handler( ) :
-  return tweepy.API( get_self_auth_handler() )
-
-def get_status_id_from_url( url ) :
-  match = re.search( PATTERN_TWEET_ID, url )
-
-  if match :
-    # the twitter id was found, returning the matched string
-    return match.group( 0 )
-  else :
-    # no twitter id (invalid url?) returns None
-    return None
 
 def truncate_string( s, max_length ) :
   if len( s ) < max_length :
@@ -100,8 +80,6 @@ def assemble_tweet( content, id, always_link = False ) :
   return content
 
 def tweet_post( post ) :
-  auth = get_self_auth_handler()
-
   if isinstance( post, Note ) :
     tweet = assemble_tweet( post.content, post.pk )
   elif isinstance( post, Article ) :
@@ -109,8 +87,8 @@ def tweet_post( post ) :
   
   # TODO : for replies, find a valid twitter reply context, or just directly link the thing we're replying to
 
-  api = tweepy.API( auth )
-  status = api.update_status( status = tweet )
+  api     = get_selfauthed_api_handler()
+  status  = api.update_status( status = tweet )
 
   # Get or create our post's POSSE data
   posse, created  = PosseData.objects.get_or_create( post_id = post.pk )
@@ -118,8 +96,7 @@ def tweet_post( post ) :
   posse.save()
 
 def delete_post( post ) :
-  api   = get_selfauthed_api_handler()
-
+  api       = get_selfauthed_api_handler()
   status_id = get_status_id_from_url( post.posse_data.twitter )
 
   if status_id :
