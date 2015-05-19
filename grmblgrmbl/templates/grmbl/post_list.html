@@ -17,5 +17,5 @@
   {% endif %}
   {% endfor %}
 
-  <span class="readmore-link">{% if page > 1 %}<a href="/posts?page={{ page|add:'-1' }}">PREVIOUS</a> - {% endif %}{% if not page == 1 and last_page %}PAGE {{ page }}{% endif %}{% if not last_page %} - <a href="/posts?page={{ page|add:'1' }}">CONTINUE</a>{% endif %}</span>
+  <span class="readmore-link">{% if page > 1 %}<a href="/posts?page={{ page|add:'-1' }}">PREVIOUS</a> - {% endif %}PAGE {{ page }}{% if not last_page %} - <a href="/posts?page={{ page|add:'1' }}">CONTINUE</a>{% endif %}</span>
 {% endblock %}
