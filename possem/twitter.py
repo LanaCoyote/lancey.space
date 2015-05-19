@@ -8,7 +8,7 @@ from .models import PosseData
 from .twitter_utils import get_selfauthed_api_handler, get_status_id_from_url, PATTERN_TWEET_ID
 
 TWEET_MAX_LENGTH  = 140
-TWEET_END_BUFFER  = 24
+TWEET_END_BUFFER  = 26
 
 PATTERN_TWIT_HNDL = r"twitter.com/([\w]+)"
 PATTERN_HASHTAG   = r"#\w[\w-]+"
@@ -83,7 +83,7 @@ def tweet_post( post ) :
   if isinstance( post, Note ) :
     tweet = assemble_tweet( post.content, post.pk )
   elif isinstance( post, Article ) :
-    tweet = assemble_tweet( post.title, post.pk, always_link = True )
+    tweet = assemble_tweet( post.title + ": ", post.pk, always_link = True )
   
   # for replies, find a valid twitter reply context, or just directly link the thing we're replying to
   reply_id = None
