@@ -42,10 +42,11 @@ hr {
   background-repeat:  repeat-x;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   text-align:         center;
 
   font-family:        "Press Start 2P", monospace;
+  line-height:        150%;
 }
 
 h1 {
@@ -214,6 +215,14 @@ a.article-head:hover {
   padding-top:        0;
 
   text-align:         left;
+}
+
+.note h4 {
+  margin-top:         32px;
+  margin-bottom:      0;  
+
+  text-align:         left;
+  font-size:          16pt;
 }
 
 .note-date {
