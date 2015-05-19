@@ -5,7 +5,7 @@ import tweepy
 from bs4 import BeautifulSoup
 from grmblgrmbl.models import Note, Reply, Article
 from .models import PosseData
-from .twitter_utils import get_selfauthed_api_handler, get_status_id_from_url
+from .twitter_utils import get_selfauthed_api_handler, get_status_id_from_url, PATTERN_TWEET_ID
 
 TWEET_MAX_LENGTH  = 140
 TWEET_END_BUFFER  = 24
@@ -85,10 +85,29 @@ def tweet_post( post ) :
   elif isinstance( post, Article ) :
     tweet = assemble_tweet( post.title, post.pk, always_link = True )
   
-  # TODO : for replies, find a valid twitter reply context, or just directly link the thing we're replying to
+  # for replies, find a valid twitter reply context, or just directly link the thing we're replying to
+  reply_id = None
+  if post.kind() == "Reply" :
+    if "twitter.com" in post.note.reply.reply_url :
+      reply_id = get_status_id_from_url( post.note.reply.reply_url )
+    else :
+      # see if the thing we're linking to has been syndicated to twitter
+      soup = BeautifulSoup( requests.get( post.note.reply.reply_url ).text )
 
-  api     = get_selfauthed_api_handler()
-  status  = api.update_status( status = tweet )
+      for relsynd in soup.find_all( rel = "syndication" ) :
+        if "twitter.com" in relsynd['href'] :
+          match = re.search( PATTERN_TWEET_ID, relsynd['href'] )
+
+          if match:
+            reply_id = match.group( 0 )
+            break
+      # TODO: check for u-syndication objects
+
+  api = get_selfauthed_api_handler()
+  if reply_id :
+    status = api.update_status( status = tweet, in_reply_to_status_id = reply_id )
+  else :
+    status = api.update_status( status = tweet )
 
   # Get or create our post's POSSE data
   posse, created  = PosseData.objects.get_or_create( post_id = post.pk )

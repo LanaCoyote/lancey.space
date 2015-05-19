@@ -1,4 +1,5 @@
 import re
+import requests
 from django.db import models
 from possem.twitter_utils import get_selfauthed_api_handler, resolve_tco_url
 
@@ -10,7 +11,11 @@ MENTION_MENTION   = 3
 # Create your models here.
 
 def valid_domain ( s ) :
-  return re.match( "[\w-]+\.([\w-]+\.*)+", s )
+  try :
+    requests.get( "http://" + s )
+    return True
+  except :
+    return False
 
 class Post ( models.Model ) :
   """
@@ -162,10 +167,25 @@ class Reply ( Note ) :
 
     # TODO: Search contacts
 
-    # TODO: Search silos
+    # Search silos
+    if not "." in self.display_name :
+      try :
+        twitter_api = get_selfauthed_api_handler( )
+        user = twitter_api.get_user( self.display_name )
+
+        if user.url :
+          url = resolve_tco_url( user.url )
+        else :
+          # Otherwise just link to their twitter profile
+          url = "https://twitter.com/" + self.display_name
+
+        self.profile = url
+      except Exception as e :
+        print e
+        self.profile = self.reply_url
 
     # If the display name is a valid domain, that's their profile
-    if valid_domain( self.display_name ) :
+    elif valid_domain( self.display_name ) :
       self.profile = "http://" + self.display_name
 
     # If there's no profile discernable, just make it the target url
