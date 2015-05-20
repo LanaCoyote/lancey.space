@@ -12,7 +12,10 @@
   {% endif %}{% if post.note %}
   <div class="h-entry note">
     <a class="note-date u-url" href="/posts/{{ post.id }}"><h3>POSTED <span class="dt-published">{{ post.date_posted }}</span></h3></a>
-    {{ post.note.raw_content|safe }}
+    <div style="display:inline-block;">
+      {%if post.note.reply %}<span class="reply-context-small">In reply to <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url|truncatechars:60 }}</a></span><br>{% endif %}
+      {{ post.note.raw_content|safe }}
+    </div>
   </div>
   {% endif %}
   {% endfor %}

@@ -11,7 +11,7 @@
   </div>
   {% endif %}{% if post.note %}
   <div class="note">
-    {% if post.note.reply %}<div class="reply-context u-in-reply-to">REPLY TO <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url }}</a></div>{% endif %}
+    {% if post.note.reply %}<div class="reply-context u-in-reply-to">In reply to <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url }}</a></div>{% endif %}
 
     <a class="note-date u-url" href="/posts/{{ post.id }}"><h3>POSTED <span class="dt-published">{{ post.date_posted }}</span></h3></a>
     {{ post.note.raw_content|safe }}

@@ -7,19 +7,11 @@ body {
 
 a {
   color:              #95E40A;
+  font-weight:        bold;
 }
 
 a:visited {
   color:              #1AA000;
-}
-
-
-p a {
-  font-weight:        bold;
-}
-
-p a:visited {
-  font-weight:        bold;
 }
 
 pre, blockquote {
@@ -186,14 +178,22 @@ a.navbutton:hover {
 }
 
 .reply-context, .preview {
-  margin:             16px 32px 0;
+  margin:             16px 32px 16px;
   padding:            16px;
 
   text-align:         left;
 
   border:             4px solid #1AA000;
-  font-family:        "Press Start 2P", monospace;
-  font-size:          8pt;
+}
+
+.reply-context-small {
+  padding:            0;
+  padding-left:       32px;
+
+  text-align:         left;
+
+  font-size:          10pt;
+  color:              #BCBCBC;
 }
 
 a.article-head {
@@ -232,7 +232,6 @@ a.article-head:hover {
 .note-date {
   display:            inline-block;
   width:              360px;
-  padding-top:        8px;
 
   vertical-align:     top;
 }
@@ -249,6 +248,7 @@ a.note-date:hover {
 .note-content {
   display:            inline-block;
   width:              600px;
+  margin:             0;
   padding-left:       16px;
 
   vertical-align:     top;
