@@ -64,6 +64,8 @@ h1 a:visited {
 }
 
 h3 {
+  margin-top:         0;
+
   font-size:          8pt;
 }
 
@@ -234,6 +236,10 @@ a.article-head:hover {
   width:              360px;
 
   vertical-align:     top;
+}
+
+.post-list .note-date {
+  padding-top:       16px;
 }
 
 a.note-date {
