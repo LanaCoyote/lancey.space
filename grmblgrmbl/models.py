@@ -155,11 +155,11 @@ class Reply ( Note ) :
   """
 
   reply_url     = models.URLField()
-  display_name  = models.CharField( max_length = 100 )
+  display_name  = models.CharField( max_length = 100, blank = True )
   profile       = models.URLField()
 
   def save ( self ) :
-    if not ("@" + self.display_name) in self.content :
+    if self.display_name and not ("@" + self.display_name) in self.content :
       # The reply target name is not referenced in the post, we'll insert it
       self.content = "@" + self.display_name + " " + self.content
 
