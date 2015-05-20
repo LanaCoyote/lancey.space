@@ -3,6 +3,7 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template import RequestContext
 from possem.twitter import tweet_post, delete_post
+from possem.twitter_utils import get_selfauthed_api_handler, get_status_id_from_url
 from .models import Post, Note, Article, Reply
 from .forms import ComposeForm
 
@@ -40,9 +41,26 @@ def post_list ( request, model = Post, page_len = 15 ) :
   return render_to_response( 'grmbl/post_list.html', { 'post_list' : post_list, 'page' : page, 'last_page' : last_page }, context_instance = RequestContext( request ) )
 
 def post_detail ( request, pid ) :
-  post = get_object_or_404( Post, pk = pid )
+  post    = get_object_or_404( Post, pk = pid )
+  context = {}
 
-  return render_to_response( 'grmbl/post_detail.html', { 'post' : post, 'tags' : post.tags.split( " " ) }, context_instance = RequestContext( request ) )
+  if post.kind() == "Reply" :
+    # Try to assemble some sort of reply context
+    if "twitter.com" in post.note.reply.reply_url :
+      status_id = get_status_id_from_url( post.note.reply.reply_url )
+
+      if status_id :
+        api     = get_selfauthed_api_handler()
+        status  = api.get_status( status_id )
+
+        context = {
+          "avatar"  : status.author.profile_image_url,
+          "author"  : status.author.name,
+          "title"   : "@" + status.author.screen_name,
+          "content" : "<p>" +  status.text + "</p>",
+        }
+
+  return render_to_response( 'grmbl/post_detail.html', { 'post' : post, 'tags' : post.tags.split( " " ), 'reply_context' : context }, context_instance = RequestContext( request ) )
 
 def shortlink( request, pid ) :
   # Shortlinks should just redirect to the valid post

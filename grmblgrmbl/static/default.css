@@ -188,6 +188,34 @@ a.navbutton:hover {
   border:             4px solid #1AA000;
 }
 
+.reply-context-ex {
+  margin:             0;
+  padding:            16px;
+
+  border-top:         2px solid #1AA000;
+}
+
+.reply-context-avatar {
+  float:              left;
+  margin-right:       16px;
+
+  width:              48px;
+  height:             48px;
+}
+
+.reply-context-title {
+  font-weight:        bold;
+}
+
+.reply-context-author {
+  font-size:          11pt;
+  color:              #BCBCBC;
+}
+
+.reply-context-content {
+
+}
+
 .reply-context-small {
   padding:            0;
   padding-left:       32px;
