@@ -85,7 +85,8 @@ def assemble_tweet( content, id, always_link = False, reply_link = None ) :
     content += " lancey.space/p{}".format( id )
   else :
     # Otherwise we use a shortcitation
-    content += " (lancey.space p{})".format( id )
+    #content += " (lancey.space p{})".format( id )
+    pass
 
   return content
 
