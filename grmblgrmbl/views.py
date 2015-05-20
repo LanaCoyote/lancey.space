@@ -12,58 +12,30 @@ def frontpage ( request ) :
   return post_list( request )
 
 def feed ( request ) :
-  # Get page number
-  try :
-    page  = int( request.GET["page"] )
-    start = ( page - 1 ) * 30
-    end   = start + 30
-  except :
-    page  = 1
-    start = 0
-    end   = 30
-
-  post_list = Note.objects.order_by( '-date_posted' )[start:end]
-  
-  last_page = len( post_list ) < 30
-
-  return render_to_response( 'grmbl/post_list.html', { 'post_list' : post_list, 'page' : page, 'last_page' : last_page }, context_instance = RequestContext( request ) )
+  return post_list( request, model = Note, page_len = 30 )
 
 def articles ( request ) :
+  return post_list( request, model = Article, page_len = 10 )
+
+def post_list ( request, model = Post, page_len = 15 ) :
   # Get page number
   try :
     page  = int( request.GET["page"] )
-    start = ( page - 1 ) * 10
-    end   = start + 10
+    start = ( page - 1 ) * page_len
+    end   = start + page_len
   except :
     page  = 1
     start = 0
-    end   = 10
-
-  post_list = Article.objects.order_by( '-date_posted' )[start:end]
-  
-  last_page = len( post_list ) < 10
-
-  return render_to_response( 'grmbl/post_list.html', { 'post_list' : post_list, 'page' : page, 'last_page' : last_page }, context_instance = RequestContext( request ) )
-
-def post_list ( request ) :
-  # Get page number
-  try :
-    page  = int( request.GET["page"] )
-    start = ( page - 1 ) * 15
-    end   = start + 15
-  except :
-    page  = 1
-    start = 0
-    end   = 15
+    end   = page_len
 
   # Get search tags
   try :
     tag   = request.GET["tag"]
-    post_list = Post.objects.filter( tags__contains = tag ).order_by( '-date_posted' )[start:end]
+    post_list = model.objects.filter( tags__contains = tag ).order_by( '-date_posted' )[start:end]
   except :
-    post_list = Post.objects.order_by( '-date_posted' )[start:end]
+    post_list = model.objects.order_by( '-date_posted' )[start:end]
   
-  last_page = len( post_list ) < 15
+  last_page = len( post_list ) < page_len
 
   return render_to_response( 'grmbl/post_list.html', { 'post_list' : post_list, 'page' : page, 'last_page' : last_page }, context_instance = RequestContext( request ) )
 
