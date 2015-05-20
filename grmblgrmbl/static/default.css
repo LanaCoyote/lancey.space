@@ -22,13 +22,17 @@ p a:visited {
   font-weight:        bold;
 }
 
-pre {
+pre, blockquote {
   margin-left:        16px;
   padding-left:       16px;
 
   border-left:        solid 2px #95E40A;
 
   color:              #95E40A;
+}
+
+blockquote {
+  margin-right:       48px;
 }
 
 hr {
