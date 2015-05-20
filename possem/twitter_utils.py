@@ -29,3 +29,17 @@ def resolve_tco_url( url ) :
     return requests.get( url ).url
   except :
     return None
+
+def twitter_len( s ) :
+  words   = s.split( " " )
+  length  = s.count( " " )
+
+  for word in words :
+    # this is probably not the best way to parse out links
+    if "." in word and len( word ) > 21 and not ( word.startswith( "." ) or word.endswith( "." ) ) :
+      length += 21
+    # for ordinary words, just add the word length
+    else :
+      length += len( word )
+
+  return length
