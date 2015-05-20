@@ -16,7 +16,7 @@
 
 {% if user.is_authenticated %}
 <div id="websignin">
-  <form action="http://lancey.space/auth/logout" method="get">
+  <form action="/auth/logout" method="get">
     <label for="signout_button">SIGNED IN AS {{ user.username }}</label>
     <button id="signout_button" type="submit">Sign Out</button>
   </form>

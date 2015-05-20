@@ -5,5 +5,5 @@ from . import views
 
 urlpatterns = [
   url( r'^$',         views.auth, name = 'authenticate' ),
-  url( r'^logout/$',  views.logout, name = 'logout' ),
+  url( r'^logout/$',  views.log_out, name = 'logout' ),
 ]

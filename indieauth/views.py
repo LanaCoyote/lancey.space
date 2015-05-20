@@ -20,7 +20,7 @@ def auth ( request ) :
   else :
     return HttpResponseBadRequest()
 
-def logout( request ) :
+def log_out( request ) :
   try :
     logout( request )
     return HttpResponseRedirect( "/" )
