@@ -42,6 +42,7 @@ def post_list ( request, model = Post, page_len = 15 ) :
 
 def post_detail ( request, pid ) :
   post    = get_object_or_404( Post, pk = pid )
+  tags    = [tag for tag in post.tags.split( " " ) if tag]
   context = {}
 
   if post.kind() == "Reply" :
@@ -60,7 +61,7 @@ def post_detail ( request, pid ) :
           "content" : "<p>" +  status.text + "</p>",
         }
 
-  return render_to_response( 'grmbl/post_detail.html', { 'post' : post, 'tags' : post.tags.split( " " ), 'reply_context' : context }, context_instance = RequestContext( request ) )
+  return render_to_response( 'grmbl/post_detail.html', { 'post' : post, 'tags' : tags, 'reply_context' : context }, context_instance = RequestContext( request ) )
 
 def shortlink( request, pid ) :
   # Shortlinks should just redirect to the valid post
