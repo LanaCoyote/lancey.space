@@ -14,7 +14,7 @@
       {% if post.note.reply %}<div class="meta context">In reply to <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url|truncatechars:60 }}</a></div>
       {% if reply_context %}<div class="ex-context">
         {% if reply_context.avatar %}<img class="context-avatar" src="{{ reply_context.avatar }}">{% endif %}
-        <span class="context-title">{{ reply_context.title }}</span>
+        <span class="context-title"><a href="{{ post.note.reply.reply_url }}">{{ reply_context.title }}</a></span>
         <span class="context-author">{{ reply_context.author }}</span>
         <div class="context-content">
           {{ reply_context.content|safe }}

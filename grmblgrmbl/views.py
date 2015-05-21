@@ -1,9 +1,11 @@
+from bs4 import BeautifulSoup
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.template import RequestContext
 from possem.twitter import tweet_post, delete_post
 from possem.twitter_utils import get_selfauthed_api_handler, get_status_id_from_url
+from urllib2 import urlopen
 from .models import Post, Note, Article, Reply
 from .forms import ComposeForm
 
@@ -60,6 +62,25 @@ def post_detail ( request, pid ) :
           "title"   : "@" + status.author.screen_name,
           "content" : "<p>" +  status.text + "</p>",
         }
+    else :
+      # Look at the site's meta info to try to assemble a context
+      try :
+        soup = BeautifulSoup( urlopen( post.note.reply.reply_url ).read() )
+
+        og_image    = soup.find( "meta", { "property" : "og:image" } )
+        og_author   = soup.find( "meta", { "property" : "og:site_name" } )
+        og_title    = soup.find( "meta", { "property" : "og:title" } )
+        og_descript = soup.find( "meta", { "property" : "og:description" } )
+
+        if soup :
+          context = {
+            "avatar"  : soup.find( "meta", { "property" : "og:image" } )['content'] if og_image else None,
+            "author"  : soup.find( "meta", { "property" : "og:site_name" } )['content'] if og_author else None,
+            "title"   : soup.find( "meta", { "property" : "og:title" } )['content'] if og_title else None,
+            "content" : "<p>" + soup.find( "meta", { "property" : "og:description" } )['content'] + "</p>" if og_descript else None,
+          }
+      except Exception as e :
+        print "Extract meta fail: {}".format( e )
 
   return render_to_response( 'grmbl/post_detail.html', { 'post' : post, 'tags' : tags, 'reply_context' : context }, context_instance = RequestContext( request ) )
 

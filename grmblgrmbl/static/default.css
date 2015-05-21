@@ -250,9 +250,8 @@ a.navbutton:hover {
 .context-avatar {
   float:              left;
   margin-right:       16px;
-
-  width:              48px;
-  height:             48px;
+  max-width:          128px;
+  max-height:         128px;
 }
 
 .context-title {
