@@ -251,7 +251,7 @@ a.navbutton:hover {
   float:              left;
   margin-right:       16px;
   max-width:          128px;
-  max-height:         128px;
+  max-height:         64px;
 }
 
 .context-title {

@@ -63,22 +63,38 @@ def post_detail ( request, pid ) :
           "content" : "<p>" +  status.text + "</p>",
         }
     else :
-      # Look at the site's meta info to try to assemble a context
+      # Look at the site's HTML to try to assemble a context
       try :
-        soup = BeautifulSoup( urlopen( post.note.reply.reply_url ).read() )
+        soup    = BeautifulSoup( urlopen( post.note.reply.reply_url ).read() )
 
-        og_image    = soup.find( "meta", { "property" : "og:image" } )
-        og_author   = soup.find( "meta", { "property" : "og:site_name" } )
-        og_title    = soup.find( "meta", { "property" : "og:title" } )
-        og_descript = soup.find( "meta", { "property" : "og:description" } )
+        hentry  = soup.find( "", { "class" : "h-entry" } )
+        if hentry :
+          avatar  = soup.find( "", { "class" : "u-logo" } )
+          author  = hentry.find( "", { "class" : "p-author" } )
+          title   = hentry.find( "", { "class" : "p-name" } )
+          summary = hentry.find( "", { "class" : "p-summary" } )
+          content = summary if summary else hentry.find( "", { "class" : "e-content" } )
 
-        if og_image or og_author or og_title or og_descript :
           context = {
-            "avatar"  : soup.find( "meta", { "property" : "og:image" } )['content'] if og_image else "",
-            "author"  : soup.find( "meta", { "property" : "og:site_name" } )['content'] if og_author else "",
-            "title"   : soup.find( "meta", { "property" : "og:title" } )['content'] if og_title else "",
-            "content" : "<p>" + soup.find( "meta", { "property" : "og:description" } )['content'] + "</p>" if og_descript else "",
+            "avatar"   : avatar['src'] if avatar else author.img['src'] if author else "",
+            "author"   : author.text if author else "",
+            "title"    : title.text if title else "",
+            "content"  : content.text if content else "",
           }
+        else :
+          # Attempt to use meta information for a context
+          og_image    = soup.find( "meta", { "property" : "og:image" } )
+          og_author   = soup.find( "meta", { "property" : "og:site_name" } )
+          og_title    = soup.find( "meta", { "property" : "og:title" } )
+          og_descript = soup.find( "meta", { "property" : "og:description" } )
+
+          if og_image or og_author or og_title or og_descript :
+            context = {
+              "avatar"  : soup.find( "meta", { "property" : "og:image" } )['content'] if og_image else "",
+              "author"  : soup.find( "meta", { "property" : "og:site_name" } )['content'] if og_author else "",
+              "title"   : soup.find( "meta", { "property" : "og:title" } )['content'] if og_title else "",
+              "content" : "<p>" + soup.find( "meta", { "property" : "og:description" } )['content'] + "</p>" if og_descript else "",
+            }
       except Exception as e :
         print "Extract meta fail: {}".format( e )
 
