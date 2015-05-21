@@ -185,6 +185,7 @@ a.navbutton:hover {
 
   font-family:        "Press Start 2P", monospace;
   font-size:          16pt;
+  line-height:        125%;
 }
 
 .post.detail .title {
