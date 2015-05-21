@@ -3,8 +3,12 @@
 {% block content %}
   <div class="h-entry">
   <div class="post detail">
-    {% if post.article %}<div class="title p-name">{{ post.article.title }}</div>
-    <div class="meta date">Posted on <a class="dt-published u-url" href="/posts/{{ post.pk }}">{{ post.date_posted }}</a></div>{% endif %}
+    {% if post.article %}<div class="title p-name">{{ post.article.title }}</div>{% endif %}
+    <div class="meta date">
+      {% if post.get_previous %}<a href="/posts/{{ post.get_previous.pk }}">Previous</a> - {% endif %}
+      Posted on <a class="dt-published u-url" href="/posts/{{ post.pk }}">{{ post.date_posted }}</a>
+      {% if post.get_next %} - <a href="/posts/{{ post.get_next.pk }}">Next</a>{% endif %}
+    </div>  
     <div class="body">
       {% if post.note.reply %}<div class="meta context">In reply to <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url|truncatechars:60 }}</a></div>
       {% if reply_context %}<div class="ex-context">
@@ -17,15 +21,14 @@
       </div>{% endif %}{% endif %}
       {% if post.article %}{{ post.article.content|safe }}{% elif post.note %}{{ post.note.raw_content|safe }}{% endif %}
     </div>
-    <div class="info">
-      <div class="meta date"><a class="dt-published u-url" href="/posts/{{ post.pk }}">{{ post.date_posted }}</a></div>
-      <!-- in the future there will be more stuff, like comment count, etc. -->
-    </div>
     <div class="discovery">
       <div class="syndication">
         {% if post.posse_data.twitter %}<div class="meta twitter"><a class="u-syndication" rel="syndication" href="{{ post.posse_data.twitter }}">View on Twitter</a></div>{% endif %}
       </div>
       <div class="meta tags">Tags: {% for tag in tags %}<a class="p-category" href="/posts?tag={{ tag }}">#{{ tag }}</a> {% endfor %}</div>
+    </div>
+    <div class="interaction">
+      <!-- in the future there will be more stuff, like comment count, etc. -->
     </div>
   </div>
 {% endblock %}

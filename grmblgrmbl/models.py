@@ -41,18 +41,26 @@ class Post ( models.Model ) :
       except AttributeError :
         return "Unknown"
 
-  def next_id( self ) :
+  def get_next( self ) :
+    if self.kind() == "Article" :
+      kind = Article
+    else :
+      kind = Note
+
     try :
-      next = Post.objects.filter( date_posted__gt = self.date_posted ).only( "id" ).earliest( "date_posted" )
-      return next.id
-    except :
+      return kind.objects.filter( date_posted__gt = self.date_posted ).only( "id" ).earliest( "date_posted" )
+    except kind.DoesNotExist :
       return None
 
-  def prev_id( self ) :
+  def get_previous( self ) :
+    if self.kind() == "Article" :
+      kind = Article
+    else :
+      kind = Note
+
     try :
-      next = Post.objects.filter( date_posted__lt = self.date_posted ).only( "id" ).latest( "date_posted" )
-      return next.id
-    except :
+      return kind.objects.filter( date_posted__lt = self.date_posted ).only( "id" ).latest( "date_posted" )
+    except kind.DoesNotExist :
       return None
 
   def receive_webmention( self, source, target, soup ) :
