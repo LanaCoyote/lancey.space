@@ -228,7 +228,7 @@ a.navbutton:hover {
   color:              #BCBCBC;
 }
 
-.post .meta.date a, .post .meta.context a, .post .interaction a {
+.post .meta.date a, .post .meta.context a, .post .actions a {
   color:              #BCBCBC;
 }
 
@@ -267,6 +267,53 @@ a.navbutton:hover {
 
 }
 
+.activities .act {
+  padding:            4px 16px;
+
+  font-size:          8pt;
+  color:              #BCBCBC;
+}
+
+.activities .like .avatar, .activities .repost .avatar {
+  width:              16px;
+  height:             16px;
+}
+
+.activities .comment .body, .activities .mention .body {
+  display:            inline-block;
+  width:              75%;
+
+  vertical-align:     top;
+}
+
+.activities .comment .site, .activities .mention .site {
+  font-size:          12pt;
+}
+
+.activities .comment .author, .activities .mention .author {
+  font-size:          11pt;
+}
+
+.activities .comment .content, .activities .mention .content {
+  font-size:          12pt;
+  color:              #FCFCFC;
+}
+
+.activities .comment .avatar, .activities .mention .avatar {
+  display:            inline-block;
+
+  width:              48px;
+  height:             48px;
+
+  vertical-align:     top;
+}
+
+.activities .comment a.date, .activities .mention a.date {
+  padding-left:       16px;
+
+  color:              #BCBCBC;
+  text-decoration:    underline;
+}
 
 
 

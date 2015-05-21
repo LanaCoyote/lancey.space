@@ -6,6 +6,7 @@ from django.template import RequestContext
 from possem.twitter import tweet_post, delete_post
 from possem.twitter_utils import get_selfauthed_api_handler, get_status_id_from_url
 from urllib2 import urlopen
+from webmention.send import send_webmentions_from_post
 from .models import Post, Note, Article, Reply
 from .forms import ComposeForm
 
@@ -182,6 +183,8 @@ def compose ( request ) :
 
         if form.cleaned_data['syn_twitter'] :
           tweet_post( post )
+
+      send_webmentions_from_post( post )
 
       return HttpResponseRedirect( '/posts/' + str( post.pk ) )
   else :

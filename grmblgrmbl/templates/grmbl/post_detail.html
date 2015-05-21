@@ -1,4 +1,5 @@
 {% extends "grmbl/default.html" %}
+{% load staticfiles %}
 
 {% block content %}
   <div class="h-entry">
@@ -29,16 +30,32 @@
       <div class="meta tags">Tags: {% for tag in tags %}<a class="p-category" href="/posts?tag={{ tag }}">#{{ tag }}</a> {% endfor %}</div>
     </div>
     <div class="interaction">
-      {% if post.posse_data.twitter %}<span class="meta like"><indie-action do="like" with="http://lancey.space/posts/{{ post.pk }}">
-        <a href="https://twitter.com/intent/favorite?tweet_id={{ post.posse_data.get_tweet_id }}"><i class="fa fa-heart fa-fw"></i> Like</a>
-      </indie-action></span>
-      <span class="meta repost"><indie-action do="repost" with="http://lancey.space/posts/{{ post.pk }}">
-        <a href="https://twitter.com/intent/retweet?tweet_id={{ post.posse_data.get_tweet_id }}"><i class="fa fa-refresh fa-fw"></i> Repost</a>
-      </indie-action></span>
-      <span class="meta like"><indie-action do="reply" with="http://lancey.space/posts/{{ post.pk }}">
-        <a href="https://twitter.com/intent/tweet?in_reply_to={{ post.posse_data.get_tweet_id }}"><i class="fa fa-reply fa-fw"></i> Reply</a>
-      </indie-action></span>{% endif %}
-      <!-- in the future there will be more stuff, like comment count, etc. -->
+      <div class="actions">
+        {% if post.posse_data.twitter %}<span class="meta like"><indie-action do="like" with="http://lancey.space/posts/{{ post.pk }}">
+          <a href="https://twitter.com/intent/favorite?tweet_id={{ post.posse_data.get_tweet_id }}"><i class="fa fa-heart fa-fw"></i> Like</a> ({{ post.get_likes.count }})
+        </indie-action></span>
+        <span class="meta repost"><indie-action do="repost" with="http://lancey.space/posts/{{ post.pk }}">
+          <a href="https://twitter.com/intent/retweet?tweet_id={{ post.posse_data.get_tweet_id }}"><i class="fa fa-refresh fa-fw"></i> Repost</a> ({{ post.get_reposts.count }})
+        </indie-action></span>
+        <span class="meta like"><indie-action do="reply" with="http://lancey.space/posts/{{ post.pk }}">
+          <a href="https://twitter.com/intent/tweet?in_reply_to={{ post.posse_data.get_tweet_id }}"><i class="fa fa-reply fa-fw"></i> Reply</a> ({{ post.get_comments.count }})
+        </indie-action></span>{% endif %}
+      </div>
+
+      <div class="activities">{% for act in post.activity_set.objects.all %}
+        {% if act.like %}<div class="act like"><img class="avatar" src="{{ act.like.avatar }}"> liked this</div>
+        {% elif act.repost %}<div class="act repost"><img class="avatar" src="{{ act.repost.avatar }}"> reposted this</div>
+        {% elif act.comment %}<div class="act comment"><img class="avatar" src="{{ act.comment.avatar }}"> <div class="body">
+          <a class="site" href="{{ act.comment.site_url }}">{{ act.comment.site }}</a> <span class="author">{{ act.comment.author }}</span>
+          <div class="content">{{ act.comment.content }}</div>
+          <a href="{{ act.source }}" class="date">{{ act.comment.date_posted }}</a>
+        </div></div>
+        {% elif act.mention %}<div class="act mention"><img class="avatar" src="{{ act.mention.avatar }}"> <div class="body">
+          <a class="site" href="{{ act.mention.site_url }}">{{ act.mention.site }}</a> <span class="author">{{ act.mention.author }}</span>
+          <div class="content"><a href="{{ act.source }}">{{ act.mention.title }}</a></div>
+          <a href="{{ act.source }}" class="date">{{ act.mention.date_posted }}</a>
+        </div></div>{% endif %}
+      {% endfor %}</div>
     </div>
   </div>
 {% endblock %}

@@ -11,6 +11,7 @@ from grmblgrmbl.models import Post
 @csrf_exempt
 def endpoint ( request ) :
   if request.method == "POST" :
+
     # Check that the POST request is a valid Webmention with a source and target
     if not request.POST.has_key( "source" ) or not request.POST.has_key( "target" ) :
       return HttpResponseBadRequest( content = "Source or target URL not provided." )
@@ -45,7 +46,6 @@ def endpoint ( request ) :
 
     # Reply successfully
     return HttpResponse( status = 200, content = "Webmention received successfully." )
-
   else :
     # Someone's accessing the endpoint without a POST request, show a page
     return render( request, 'wm/endpoint.html' )

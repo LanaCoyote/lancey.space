@@ -17,6 +17,18 @@ def valid_domain ( s ) :
   except :
     return False
 
+def expand_local_ref ( site, ref ) :
+  if ref.startswith( "http" ) :
+    return ref
+
+  while ref.startswith( "." ) :
+    ref = ref[1:]
+
+  if not ref.startswith( "/" ) :
+    ref = "/" + ref
+
+  return site + ref
+
 class Post ( models.Model ) :
   """
     A post is a media-generic entry on the site. It's meant to be subclassed into various media types.
@@ -63,42 +75,79 @@ class Post ( models.Model ) :
     except kind.DoesNotExist :
       return None
 
+  def get_likes( self ) :
+    return Like.objects.filter( post_id = self.pk )
+
+  def get_reposts( self ) :
+    return Repost.objects.filter( post_id = self.pk )
+
+  def get_comments( self ) :
+    return Repost.objects.filter( post_id = self.pk )
+
+  def get_mentions( self ) :
+    return Mention.objects.filter( post_id = self.pk )
+
   def receive_webmention( self, source, target, soup ) :
-    mention = Mention()
-    mention.source  = source
-    mention.post    = self
+    anchor = soup.find( href = target )
+    if not anchor :
+      return
 
-    # Get the mention type
-    anchor = soup.find( "a", href = target )
-    if anchor :
-      if anchor.has_key( 'rel' ) and anchor['rel'] == "in-reply-to" :
-        mention.resp_type = MENTION_REPLY
+    if anchor.has_key( "rel" ) and anchor['rel'] == "in-reply-to" :
+      act = Comment()
 
-        content = soup.find( class_ = "e-content" )
-        if content :
-          if len( content.get_text() ) > 200 :
-            mention.content = content.get_text()[:200] + "..."
-          else :
-            mention.content = content
-      elif anchor.has_key( 'class' ) and "u-like-of" in anchor['class'] :
-        mention.resp_type = MENTION_LIKE
-      elif anchor.has_key( 'class' ) and "u-repost-of" in anchor['class'] :
-        mention.resp_type = MENTION_REPOST
-      else :
-        mention.resp_type = MENTION_MENTION
+      summary = soup.find( "", { "class" : "p-summary" } )
+      act.content = summary.text if summary else soup.find( "", { "class" : "e-content" } ).text if soup.find( "", { "class" : "e-content" } ) else None
 
-    # Get the author's name
-    author = soup.find( class_ = "p-author" )
-    if author :
-      if "h-card" in author['class'] :
-        if author.find( class_ = "p-name" ) :
-          mention.author = unicode( author.find( class_ = "p-name" ).string )
+    elif anchor.has_key( "class" ) and "u-like-of" in anchor['class'] :
+      act = Like()
+
+    elif anchor.has_key( "class" ) and "u-repost-of" in anchor['class'] :
+      act = Repost()
+
+    else :
+      act = Mention()
+
+      pname = soup.find( "", { "class" : "p-name" } )
+      act.title = pname.text if pname else source
+
+    if isinstance( act, Comment ) or isinstance( act, Mention ) :
+      # Get the mentioner's site and URL
+      parts         = source.split( '/' )
+      act.site      = parts[2]
+      act.site_url  = '/'.join( parts[:3] )
+
+      # Get the mentioner's name and avatar
+      hcard = soup.find( "", { "class" : "h-card" } )
+      if hcard :
+        act.avatar = expand_local_ref( hcard.img['src'], act.site_url )
+
+        if hcard.text :
+          act.author = hcard.text
+        elif hcard.has_key( "title" ) :
+          act.author = hcard['title']
+        elif hcard.img.has_key( "alt" ) :
+          act.author = hcard.img['alt']
         else :
-          mention.author = unicode( author.string )
+          act.author = act.site
       else :
-        mention.author = author.get_text()
+        act.author = act.site
 
-    mention.save()
+      # Get the date it was posted
+      date = soup.find( "", { "class" : "dt-published" } )
+      act.date_posted = date.text if date else "link to this"
+    elif isinstance( act, Like ) or isinstance( act, Repost ) :
+      # Get the toplevel URL of the actor
+      parts = source.split( '/' )
+      act.site_url = '/'.join( parts[:3] )
+
+      # Get the actor's avatar
+      hcard = soup.find( "", { "class" : "h-card" } )
+      if hcard :
+        act.avatar = expand_local_ref( hcard.img['src'], act.site_url )
+
+    act.post    = self
+    act.source  = source
+    act.save()
 
 
 class Note ( Post ) :
@@ -213,16 +262,35 @@ class Article ( Post ) :
   def __unicode__ ( self ) :
     return self.title
 
-class Mention ( models.Model ) :
-  """
-    A mention is an off-site reference to a post, such as a comment, like, or repost
-  """
+class Activity ( models.Model ) :
 
-  source      = models.URLField( max_length = 200 )
   post        = models.ForeignKey( Post )
+  source      = models.URLField()
 
-  date_posted = models.DateTimeField( auto_now_add = True )
-  author      = models.CharField( max_length = 100 )
+class Mention ( Activity ) :
+
+  site        = models.CharField( max_length = 100, blank = True )
+  site_url    = models.URLField( blank = True )
+  author      = models.CharField( max_length = 100, blank = True )
+  avatar      = models.URLField( blank = True )
+  title       = models.CharField( max_length = 200, blank = True )
+  date_posted = models.CharField( max_length = 100, blank = True )
+
+class Comment ( Activity ) :
+
+  site        = models.CharField( max_length = 100, blank = True )
+  site_url    = models.URLField( blank = True )
+  author      = models.CharField( max_length = 100, blank = True )
+  avatar      = models.URLField( blank = True )
   content     = models.TextField( blank = True )
+  date_posted = models.CharField( max_length = 100, blank = True )
 
-  resp_type   = models.SmallIntegerField( default = MENTION_MENTION )
+class Like ( Activity ) :
+
+  site_url    = models.URLField( null = True )
+  avatar      = models.URLField( blank = True )
+
+class Repost ( Activity ) :
+
+  site_url    = models.URLField( null = True )
+  avatar      = models.URLField( blank = True )

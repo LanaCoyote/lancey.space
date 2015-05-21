@@ -11,7 +11,7 @@
   <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
-  <!-- <link rel="webmention" href="/webmention"> -->
+  <link rel="webmention" href="http://lancey.space{% url 'webmention:endpoint' %}">
 </head>
 
 <body>
@@ -19,7 +19,7 @@
 
 {% if user.is_authenticated %}
 <div id="websignin">
-  <form action="/auth/logout" method="get">
+  <form action="{% url 'auth:logout' %}" method="get">
     <label for="signout_button">SIGNED IN AS {{ user.username }}</label>
     <button id="signout_button" type="submit">Sign Out</button>
   </form>
@@ -31,7 +31,7 @@
     <input id="indie_auth_url" type="text" name="me" placeholder="example.com">
     <button type="submit">Sign In</button>
     <input type="hidden" name="client_id" value="http://lancey.space">
-    <input type="hidden" name="redirect_uri" value="http://lancey.space/auth">
+    <input type="hidden" name="redirect_uri" value="http://lancey.space{% url 'auth:authenticate' %}">
   </form>
 </div>
 {% endif %}
@@ -41,9 +41,9 @@
   <h1><a href="/">LANCEY SPACE</a></h1>
   
   <div id="navigation">
-    <a class="navbutton" href="/feed"><img src="{% static 'icon_feed.png' %}"><span class="navbutton-label">FEED</span></a>
-    <a class="navbutton" href="/articles"><img src="{% static 'icon_articles.png' %}"><span class="navbutton-label">ARTICLES</span></a>
-    {% if user.is_staff %}<a class="navbutton" href="/compose"><span class="navbutton-label">NEW</span></a>{% endif %}
+    <a class="navbutton" href="{% url 'blog:feed' %}"><img src="{% static 'icon_feed.png' %}"><span class="navbutton-label">FEED</span></a>
+    <a class="navbutton" href="{% url 'blog:articles' %}"><img src="{% static 'icon_articles.png' %}"><span class="navbutton-label">ARTICLES</span></a>
+    {% if user.is_staff %}<a class="navbutton" href="{% url 'blog:compose' %}"><span class="navbutton-label">NEW</span></a>{% endif %}
   </div>
 
   <hr>

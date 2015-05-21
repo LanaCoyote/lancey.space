@@ -20,9 +20,9 @@ from django.conf.urls.static import static
 from django.shortcuts import render
 
 urlpatterns = [
-    url(r'^',               include('grmblgrmbl.urls')),
-    url(r'^auth/',          include('indieauth.urls')),
-    #url(r'^webmention/',   include('webmention.urls')), # Webmention endpoint
+    url(r'^',               include('grmblgrmbl.urls', namespace = "blog")),
+    url(r'^auth/',          include('indieauth.urls', namespace = "auth")),
+    url(r'^webmention/',   include('webmention.urls', namespace = "webmention")), # Webmention endpoint
     url(r'^admin/',         include(admin.site.urls)),
     url(r'^google7110dd68f0e6bdee.html$', lambda r : render( r, 'google7110dd68f0e6bdee.html') )    # Google verification
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
