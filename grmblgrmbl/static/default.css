@@ -201,6 +201,10 @@ a.navbutton:hover {
   color:              #FCFCFC;
 }
 
+.post .mod-links {
+  float:              right;
+}
+
 .post .ex-context {
   margin:             16px;
   padding:            16px;

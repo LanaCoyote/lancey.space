@@ -4,6 +4,7 @@
   <div class="h-entry">
   <div class="post detail">
     {% if post.article %}<div class="title p-name">{{ post.article.title }}</div>{% endif %}
+    {% if user.is_staff %}<div class="meta mod-links"><a href="/compose?post_id={{ post.id }}">Edit / Delete Post</a></div>{% endif %}
     <div class="meta date">
       {% if post.get_previous %}<a href="/posts/{{ post.get_previous.pk }}">Previous</a> - {% endif %}
       Posted on <a class="dt-published u-url" href="/posts/{{ post.pk }}">{{ post.date_posted }}</a>
