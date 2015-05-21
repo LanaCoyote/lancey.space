@@ -228,7 +228,7 @@ a.navbutton:hover {
   color:              #BCBCBC;
 }
 
-.post .meta.date a, .post .meta.context a {
+.post .meta.date a, .post .meta.context a, .post .interaction a {
   color:              #BCBCBC;
 }
 
@@ -402,11 +402,6 @@ a.note-date:hover {
   border-left:        2px solid #FCFCFC;
 
   font-size:          8pt;
-}
-
-.like, .repost, .mention {
-  font-size:          8pt;
-  font-style:         italic;
 }
 
 .contact-box {
