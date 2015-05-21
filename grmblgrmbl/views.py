@@ -72,12 +72,12 @@ def post_detail ( request, pid ) :
         og_title    = soup.find( "meta", { "property" : "og:title" } )
         og_descript = soup.find( "meta", { "property" : "og:description" } )
 
-        if soup :
+        if og_image or og_author or og_title or og_descript :
           context = {
-            "avatar"  : soup.find( "meta", { "property" : "og:image" } )['content'] if og_image else None,
-            "author"  : soup.find( "meta", { "property" : "og:site_name" } )['content'] if og_author else None,
-            "title"   : soup.find( "meta", { "property" : "og:title" } )['content'] if og_title else None,
-            "content" : "<p>" + soup.find( "meta", { "property" : "og:description" } )['content'] + "</p>" if og_descript else None,
+            "avatar"  : soup.find( "meta", { "property" : "og:image" } )['content'] if og_image else "",
+            "author"  : soup.find( "meta", { "property" : "og:site_name" } )['content'] if og_author else "",
+            "title"   : soup.find( "meta", { "property" : "og:title" } )['content'] if og_title else "",
+            "content" : "<p>" + soup.find( "meta", { "property" : "og:description" } )['content'] + "</p>" if og_descript else "",
           }
       except Exception as e :
         print "Extract meta fail: {}".format( e )
