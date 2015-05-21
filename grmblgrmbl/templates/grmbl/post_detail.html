@@ -29,7 +29,7 @@
       <div class="meta tags">Tags: {% for tag in tags %}<a class="p-category" href="/posts?tag={{ tag }}">#{{ tag }}</a> {% endfor %}</div>
     </div>
     <div class="interaction">
-      {% if pose.posse_data.twitter %}<span class="meta like"><indie-action do="like" with="http://lancey.space/posts/{{ post.pk }}">
+      {% if post.posse_data.twitter %}<span class="meta like"><indie-action do="like" with="http://lancey.space/posts/{{ post.pk }}">
         <a href="https://twitter.com/intent/favorite?tweet_id={{ post.posse_data.get_tweet_id }}"><i class="fa fa-heart fa-fw"></i> Like</a>
       </indie-action></span>
       <span class="meta repost"><indie-action do="repost" with="http://lancey.space/posts/{{ post.pk }}">
