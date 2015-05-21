@@ -3,6 +3,7 @@ migrations/
 
 *.sqlite3
 *.pyc
+*.backup
 
 settings.py
 settings_backup.py
