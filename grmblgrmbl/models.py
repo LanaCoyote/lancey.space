@@ -29,6 +29,65 @@ def expand_local_ref ( site, ref ) :
 
   return site + ref
 
+def splice_string( s, start, chars, insert ) :
+  first_part = s[:start]
+  last_part  = s[start+chars:]
+
+  return first_part + insert + last_part
+
+def parse_links ( s ) :
+  added_length = 0
+  for link in re.finditer( "((https?|ftp)://|www\.)[^\s/$.?#].[^\s]*", s ) :
+    hyperlink = "<a href=\"" + link.group( 0 ) + "\">" + link.group( 0 ) + "</a>"
+    s = splice_string( s, link.start() + added_length, len( link.group( 0 ) ), hyperlink )
+    added_length += len( hyperlink ) - len( link.group( 0 ) )
+  return s
+
+def parse_tags( s, note = None ) :
+  added_length = 0
+  for tag in re.finditer( "#([\w-]+)", s ) :
+    hyperlink = "<a href=\"/posts?tag=" + tag.group( 1 ) + "\">" + tag.group( 0 ) + "</a>"
+    s = splice_string( s, tag.start() + added_length, len( link.group( 0 ) ), hyperlink )
+    added_length += len( hyperlink ) - len( link.group( 0 ) )
+
+    if note and not tag.group( 1 ) in note.tags :
+      note.tags += " " + tag.group( 1 )
+  return s
+
+def parse_mentions( s, note = None ) :
+  added_length = 0
+  for mention in re.finditer( "@([\w\.-]+)", self.raw_content ) :
+    # If we're actually a reply, link to the replied content
+    if note and isinstance( note, Reply ) and mention.group( 1 ) == self.display_name :
+      hyperlink = "<a href=\"" + note.profile + "\">" + mention.group( 0 ) + "</a>"
+
+    # TODO: Search contacts (make contacts)
+
+    # If the @-ref is a valid twitter handle, try to pull their website from their profile
+    elif not "." in mention.group( 0 ) :
+      try :
+        user = twitter_api.get_user( mention.group( 1 ) )
+
+        if user.url :
+          url = resolve_tco_url( user.url )
+        else :
+          # Otherwise just link to their twitter profile
+          url = "https://twitter.com/" + mention.group( 1 )
+
+        hyperlink = "<a href=\"" + url + "\">" + mention.group( 0 ) + "</a>"
+      except Exception as e :
+        print e
+        continue
+
+    # If the mentioned person is a valid domain anyway, link to that
+    elif valid_domain( mention.group( 1 ) ) :
+      hyperlink = "<a href=\"http://" + mention.group( 1 ) + "\">" + mention.group( 0 ) + "</a>"
+
+    s = splice_string( s, mention.start() + added_length, len( mention.group( 0 ) ), hyperlink )
+    added_length += len( hyperlink ) - len( mention.group( 0 ) )
+
+  return s
+
 class Post ( models.Model ) :
   """
     A post is a media-generic entry on the site. It's meant to be subclassed into various media types.
@@ -163,46 +222,17 @@ class Note ( Post ) :
 
   def save ( self ) :
     self.raw_content = "<p class=\"note-content e-content p-name\">" + self.content + "</p>"
-    # Parse out full links
-    for link in re.finditer( "((https?|ftp)://|www\.)[^\s/$.?#].[^\s]*", self.raw_content ) :
-      self.raw_content = self.raw_content.replace( link.group( 0 ), "<a href=\"" + link.group( 0 ) + "\">" + link.group( 0 ) + "</a>", 1 )
-
+    
     # Parse out tags
-    for tag in re.finditer( "#([\w-]+)", self.raw_content ) :
-      self.raw_content = self.raw_content.replace( tag.group( 0 ), "<a href=\"/posts?tag=" + tag.group( 1 ) + "\">" + tag.group( 0 ) + "</a>", 1 )
+    self.raw_content = parse_tags( self.raw_content, self )
 
-      if not tag.group( 1 ) in self.tags :
-        self.tags = self.tags + " " + tag.group( 1 )
+    # Parse out full links
+    self.raw_content = parse_links( self.raw_content )
 
     twitter_api = get_selfauthed_api_handler( )
 
     # Parse out mentions & replies
-    for mention in re.finditer( "@([\w\.-]+)", self.raw_content ) :
-      # If we're actually a reply, link to the replied content
-      if isinstance( self, Reply ) and mention.group( 1 ) == self.display_name :
-        self.raw_content = self.raw_content.replace( mention.group( 0 ), "<a href=\"" + self.profile + "\">" + mention.group( 0 ) + "</a>", 1 )
-
-      # TODO: Search contacts (make contacts)
-
-      # If the @-ref is a valid twitter handle, try to pull their website from their profile
-      elif not "." in mention.group( 0 ) :
-        try :
-          user = twitter_api.get_user( mention.group( 1 ) )
-
-          if user.url :
-            url = resolve_tco_url( user.url )
-          else :
-            # Otherwise just link to their twitter profile
-            url = "https://twitter.com/" + mention.group( 1 )
-
-          self.raw_content = self.raw_content.replace( mention.group( 0 ), "<a href=\"" + url + "\">" + mention.group( 0 ) + "</a>", 1 )
-        except Exception as e :
-          print e
-
-      # If the mentioned person is a valid domain anyway, link to that
-      elif valid_domain( mention.group( 1 ) ) :
-        self.raw_content = self.raw_content.replace( mention.group( 0 ), "<a href=\"http://" + mention.group( 1 ) + "\">" + mention.group( 0 ) + "</a>", 1 )
-
+    self.raw_content = parse_mentions( self.raw_content, self )
 
     Post.save( self )
 
