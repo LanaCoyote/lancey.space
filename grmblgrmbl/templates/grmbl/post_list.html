@@ -8,7 +8,7 @@
       <div class="meta date"><a class="dt-published" href="/posts/{{ post.pk }}">{{ post.date_posted }}</a></div>{% endif %}
       <div class="body">
         {% if post.note.reply %}<div class="meta context">In reply to <a rel="in-reply-to" href="{{ post.note.reply.reply_url }}">{{ post.note.reply.reply_url|truncatechars:60 }}</a></div>{% endif %}
-        {% if post.article %}{{ post.article.content|safe|truncatewords:250 }}{% elif post.note %}{{ post.note.raw_content|safe }}{% endif %}
+        {% if post.article %}{{ post.article.summary|safe|truncatewords:250 }}{% elif post.note %}{{ post.note.raw_content|safe }}{% endif %}
         {% if post.article %}<div class="readmore"><a href="/posts/{{ post.pk }}">Read More...</a></div>{% endif %}
       </div>
       {% if post.note %}<div class="meta date"><a class="dt-published u-url" href="/posts/{{ post.pk }}">{{ post.date_posted }}</a></div>{% endif %}

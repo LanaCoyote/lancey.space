@@ -51,9 +51,11 @@ def parse_tags( s, note = None ) :
 
 def parse_mentions( s, note = None ) :
   added_length = 0
-  for mention in re.finditer( "@([\w\.-]+)", self.raw_content ) :
+  twitter_api = get_selfauthed_api_handler( )
+
+  for mention in re.finditer( "@([\w\.-]+)", s ) :
     # If we're actually a reply, link to the replied content
-    if note and isinstance( note, Reply ) and mention.group( 1 ) == self.display_name :
+    if note and isinstance( note, Reply ) and mention.group( 1 ) == note.display_name :
       hyperlink = "<a href=\"" + note.profile + "\">" + mention.group( 0 ) + "</a>"
 
     # TODO: Search contacts (make contacts)
@@ -224,8 +226,6 @@ class Note ( Post ) :
     # Parse out full links
     self.raw_content = parse_links( self.raw_content )
 
-    twitter_api = get_selfauthed_api_handler( )
-
     # Parse out mentions & replies
     self.raw_content = parse_mentions( self.raw_content, self )
 
@@ -283,6 +283,14 @@ class Article ( Post ) :
 
   title       = models.CharField( max_length = 100 )
   content     = models.TextField()
+
+  def summary( self ) :
+    endsummary = self.content.find( "<span class=\"end-summary\"></span>" )
+    print( endsummary )
+    if endsummary > -1 :
+      return self.content[:endsummary]
+    else :
+      return self.content
 
   def __unicode__ ( self ) :
     return self.title
