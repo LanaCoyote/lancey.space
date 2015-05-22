@@ -3,11 +3,6 @@ import requests
 from django.db import models
 from possem.twitter_utils import get_selfauthed_api_handler, resolve_tco_url
 
-MENTION_REPLY     = 0
-MENTION_LIKE      = 1
-MENTION_REPOST    = 2
-MENTION_MENTION   = 3
-
 # Create your models here.
 
 def valid_domain ( s ) :
