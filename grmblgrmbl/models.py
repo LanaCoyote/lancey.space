@@ -42,8 +42,8 @@ def parse_tags( s, note = None ) :
   added_length = 0
   for tag in re.finditer( "#([\w-]+)", s ) :
     hyperlink = "<a href=\"/posts?tag=" + tag.group( 1 ) + "\">" + tag.group( 0 ) + "</a>"
-    s = splice_string( s, tag.start() + added_length, len( link.group( 0 ) ), hyperlink )
-    added_length += len( hyperlink ) - len( link.group( 0 ) )
+    s = splice_string( s, tag.start() + added_length, len( tag.group( 0 ) ), hyperlink )
+    added_length += len( hyperlink ) - len( tag.group( 0 ) )
 
     if note and not tag.group( 1 ) in note.tags :
       note.tags += " " + tag.group( 1 )
